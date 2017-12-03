@@ -13,10 +13,10 @@ mpl.use('Agg')
 import reader
 
 from models.nn import NN
-# from models.ntn import NTN
-# from models.ntnd import NTNd
-# from models.ntnc import NTNc
-# from models.ntnc import NTNs
+from models.ntn import NTN
+from models.ntnd import NTNd
+from models.ntnc import NTNc
+from models.ntns import NTNs
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
     parser.add_argument('--weightdecay', '-w', type=float, default=0.0001,
                         help='Coefficient of weight decay')
 
-    parser.add_argument('--learn_rate', '-l', type=float, default=0.0001,
+    parser.add_argument('--learn_rate', '-l', type=float, default=0.1,
                         help='Learning rate')
 
     parser.add_argument('--batchsize', '-b', type=int, default=25,
@@ -98,13 +98,14 @@ def main():
         model = NTNc(**params)
     elif args.model == 's':
         result_dir = 'result_ntns'
+        params['p'] = args.p_dim
         model = NTNs(**params)
 
     if args.gpu >= 0:
         model.to_gpu()
 
     # Optimizer setup
-    optimizer = chainer.optimizers.AdaGrad()
+    optimizer = chainer.optimizers.AdaGrad(lr=args.learn_rate)
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(args.weightdecay))
 

@@ -15,7 +15,7 @@ class Base(chainer.Chain):
             u_initializer = chainer.initializers.Uniform(dtype=self.xp.float32)
 
             # Entity vectors
-            self.embed = L.EmbedID(n_ent, d)
+            self.embed = L.EmbedID(n_ent, d, initialW=u_initializer)
 
             # Neural Layer
             # - Vr
