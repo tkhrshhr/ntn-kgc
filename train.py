@@ -49,7 +49,7 @@ def main():
     parser.add_argument('--learn_rate', '-l', type=float, default=0.1,
                         help='Learning rate')
 
-    parser.add_argument('--batchsize', '-b', type=int, default=25,
+    parser.add_argument('--batchsize', '-b', type=int, default=5000,
                         help='minibatch size')
 
     parser.add_argument('--gpu', '-g', default=-1, type=int,
