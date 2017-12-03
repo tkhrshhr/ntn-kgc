@@ -4,6 +4,7 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
+from chainer import reporter
 from chainer import Variable as chVar
 
 
@@ -77,6 +78,8 @@ class Base(chainer.Chain):
         # Calculate loss
         loss_ = F.maximum(zero, margin - pos_g_t + neg_g)
         loss = F.sum(loss_)
+
+        reporter.report({'loss': loss}, self)
 
         return loss
 

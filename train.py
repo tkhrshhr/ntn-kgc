@@ -122,12 +122,8 @@ def main():
     # - Save two plot images to the result dir
     if extensions.PlotReport.available():
         trainer.extend(
-            extensions.PlotReport(['main/loss', 'validation/main/loss'],
+            extensions.PlotReport(['main/loss'],
                                   'epoch', file_name='{}loss.png'.format(resultname)))
-        trainer.extend(
-            extensions.PlotReport(
-                ['main/accuracy', 'validation/main/accuracy'],
-                'epoch', file_name='{}accuracy.png'.format(resultname)))
 
     # - Print a progress bar to stdout
     trainer.extend(extensions.ProgressBar())
