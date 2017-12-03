@@ -85,7 +85,7 @@ def main():
     # Model setup
     params = {'n_ent': n_ent, 'n_rel': n_rel, 'n_nsamp': args.n_nsamp, 'd': args.dimension, 'k': args.slice_size}
     if args.model == 'n':
-        result_dir = 'result_rnn'
+        result_dir = 'result_nn'
         model = NN(**params)
     elif args.model == 't':
         result_dir = 'result_ntn'
@@ -98,6 +98,7 @@ def main():
         model = NTNc(**params)
     elif args.model == 's':
         result_dir = 'result_ntns'
+	resultname += 'p{}'.format(args.p_dim)
         params['p'] = args.p_dim
         model = NTNs(**params)
 
