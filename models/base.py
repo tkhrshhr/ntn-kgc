@@ -54,8 +54,8 @@ class Base(chainer.Chain):
         self.s_batch = len(batch)
         # Get negative sample size of S and O
 #        self.n_cs = np.random.binomial(n=self.n_nsamp - 2, p=0.5) + 1
-        self.n_cs = self.n_nsamp
-        self.n_co = self.n_nsamp
+        self.n_cs = int(self.n_nsamp / 2)
+        self.n_co = self.n_nsamp - self.n_cs
         # Get IDs
         r_ids = batch[:, 0]
         s_ids = batch[:, 1]
