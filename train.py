@@ -98,7 +98,7 @@ def main():
         model = NTNc(**params)
     elif args.model == 's':
         result_dir = 'result_ntns'
-	resultname += 'p{}'.format(args.p_dim)
+        resultname += 'p{}'.format(args.p_dim)
         params['p'] = args.p_dim
         model = NTNs(**params)
 
