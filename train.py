@@ -40,7 +40,7 @@ def main():
     parser.add_argument('--slice_size', '-k', type=int, default=4,
                         help='Dimension of output vector')
 
-    parser.add_argument('--n_nsamp', '-s', type=int, default=5,
+    parser.add_argument('--n_nsamp', '-s', type=int, default=10,
                         help='Number of negative samples')
 
     parser.add_argument('--weightdecay', '-w', type=float, default=0.0001,
@@ -67,7 +67,7 @@ def main():
     today = datetime.date.today()
     month = today.month
     day = today.day
-    resultname = "{}{}{}-b{}d{}w{}".format(month, day, args.nmodifier, args.batchsize, args.dimension, args.weightdecay)
+    resultname = "{}-{}{}_b{}d{}w{}".format(month, day, args.nmodifier, args.batchsize, args.dimension, args.weightdecay)
 
     # Data setup
     train, dev, test, n_ent, n_rel = reader.read(args.kg_choice)
@@ -81,6 +81,9 @@ def main():
     # - Prepare train iterators
     train = xp.array(train, xp.int32)
     train_iter = chainer.iterators.SerialIterator(train, args.batchsize)
+
+    dev = xp.array(dev, xp.int32)
+    dev_iter = chainer.iterators.SerialIterator(dev, args.batchsize, repeat=False, shuffle=False)
 
     # Model setup
     params = {'n_ent': n_ent, 'n_rel': n_rel, 'n_nsamp': args.n_nsamp, 'd': args.dimension, 'k': args.slice_size}
@@ -116,6 +119,7 @@ def main():
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), out=result_dir)
 
     # - Evaluate the model with the test dataset for each epoch
+    trainer.extend(extensions.Evaluator(dev_iter, model, device=args.gpu))
 
     # - Write a log of evaluation statistics for each epoch
     trainer.extend(extensions.LogReport(log_name="{}log".format(resultname)))
@@ -123,7 +127,7 @@ def main():
     # - Save two plot images to the result dir
     if extensions.PlotReport.available():
         trainer.extend(
-            extensions.PlotReport(['main/loss'],
+            extensions.PlotReport(['main/loss', 'validation/main/loss'],
                                   'epoch', file_name='{}loss.png'.format(resultname)))
 
     # - Print a progress bar to stdout
