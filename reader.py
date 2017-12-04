@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 W_TRAIN_PATH = 'data/wordnet-mlj12/wordnet-mlj12-train.txt'
 W_DEV_PATH = 'data/wordnet-mlj12/wordnet-mlj12-valid.txt'
 W_TEST_PATH = 'data/wordnet-mlj12/wordnet-mlj12-test.txt'
@@ -8,6 +10,9 @@ F_TEST_PATH = 'data/wordnet-mlj12/wordnet-mlj12-test.txt'
 
 ent_dict = {}
 rel_dict = {}
+
+rs2o = defaultdict(list)
+ro2s = defaultdict(list)
 
 train = []
 dev = []
@@ -35,6 +40,8 @@ def get_dict(*files):
 
 def get_rso_as_ID(line):
     s, r, o = line.split()
+    rs2o[(rel_dict[r], ent_dict[s])].append(ent_dict[o])
+    ro2s[(rel_dict[r], ent_dict[o])].append(ent_dict[s])
     return [rel_dict[r], ent_dict[s], ent_dict[o]]
 
 
@@ -59,9 +66,9 @@ def read(w_or_f='w'):
     for line in test_f.readlines():
         test.append(get_rso_as_ID(line))
 
-    return train, dev, test, len(ent_dict), len(rel_dict)
+    return train, dev, test, len(ent_dict), len(rel_dict), rs2o, ro2s
 
 
 if __name__ == '__main__':
-    a, b, c = read('f')
+    a, b, c, d, e, f, g = read('f')
     print(b[:10])

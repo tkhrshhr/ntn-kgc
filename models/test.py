@@ -1,6 +1,7 @@
-def test(a=2, b=3):
-    print(a, b)
-
+def test(di):
+    di['a'] = 2
 
 inputs = {'a': 1, 'b': 1}
-test(**inputs)
+test(inputs)
+
+print(inputs)

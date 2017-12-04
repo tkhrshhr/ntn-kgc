@@ -67,10 +67,10 @@ def main():
     today = datetime.date.today()
     month = today.month
     day = today.day
-    resultname = "{}-{}{}_b{}d{}w{}".format(month, day, args.nmodifier, args.batchsize, args.dimension, args.weightdecay)
+    resultname = "{}-{}{}_b{}d{}w{}e{}".format(month, day, args.nmodifier, args.batchsize, args.dimension, args.weightdecay, args.epoch)
 
     # Data setup
-    train, dev, test, n_ent, n_rel = reader.read(args.kg_choice)
+    train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(args.kg_choice)
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
@@ -138,9 +138,9 @@ def main():
 
     # - Save model
     if args.model != 's':
-        model_name = '{}_d{}k{}s{}'.format(args.model, args.dimension, args.slice_size, args.n_nsamp)
+        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}'.format(args.kg_choice, args.model,  args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch)
     elif args.model == 's':
-        model_name = '{}_d{}k{}s{}p{}'.format(args.model, args.dimension, args.slice_size, args.n_nsamp, args.p_dim)
+        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}-p{}'.format(args.kg_choice, args.model, args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch, args.p_dim)
 
     chainer.serializers.save_hdf5("trained_model/{}".format(model_name), model)
 
