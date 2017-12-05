@@ -22,6 +22,13 @@ class NTNc(NTN):
             del self.Vr
             self.Vr = chainer.Parameter(shape=(n_rel, k, 4 * d), initializer=u_initializer)
 
+    def _normalize(self):
+        concat = self.xp.concatenate((self.embed_re.W.data, self.embed_im.W.data), axis=1)
+        norm = self.xp.linalg.norm(concat, axis=1)
+        norm = self.xp.expand_dims(norm, axis=1)
+        self.embed_re.W.data = self.embed_re.W.data / norm
+        self.embed_im.W.data = self.embed_im.W.data / norm
+
     def get_g(self, r_ids, s_ids, o_ids):
         s_batch = len(r_ids)
         # Get embeddings
