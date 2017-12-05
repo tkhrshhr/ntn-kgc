@@ -148,7 +148,7 @@ def main():
     model.to_cpu()
     score_dict = get_all_metrics(dev, model)
     for key in score_dict.keys():
-        print(key, score_dict[key] / len(dev) * 2)
+        print(key, score_dict[key])
 
 
 if __name__ == '__main__':
