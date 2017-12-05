@@ -21,7 +21,7 @@ class NTNc(NTN):
             # Vr
             del self.Vr
             self.Vr = chainer.Parameter(shape=(n_rel, k, 4 * d), initializer=u_initializer)
-
+    
     def get_g(self, r_ids, s_ids, o_ids):
         s_batch = len(r_ids)
         # Get embeddings
