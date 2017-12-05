@@ -6,7 +6,7 @@ W_TEST_PATH = 'data/wordnet-mlj12/wordnet-mlj12-test.txt'
 
 F_TRAIN_PATH = 'data/FB15k/freebase_mtr100_mte100-train.txt'
 F_DEV_PATH = 'data/FB15k/freebase_mtr100_mte100-valid.txt'
-F_TEST_PATH = 'data/wordnet-mlj12/wordnet-mlj12-test.txt'
+F_TEST_PATH = 'data/FB15k/freebase_mtr100_mte100-valid.txt'
 
 ent_dict = {}
 rel_dict = {}
@@ -22,19 +22,25 @@ test = []
 def get_dict(*files):
     ent_list = []
     rel_list = []
+
+    ent_set = set()
+    rel_set = set()
     for f in files:
         for line in f.readlines():
             s, r, o = line.split()
-            ent_list.append(s)
-            ent_list.append(o)
-            rel_list.append(r)
+            if s not in ent_set:
+                ent_list.append(s)
+            if o not in ent_set:
+                ent_list.append(o)
+            if r not in rel_set:
+                rel_list.append(r)
+            ent_set.add(s)
+            ent_set.add(o)
+            rel_set.add(r)
 
-    ent_set = set(ent_list)
-    rel_set = set(rel_list)
-
-    for i, ent in enumerate(ent_set):
+    for i, ent in enumerate(ent_list):
         ent_dict[ent] = i
-    for i, rel in enumerate(rel_set):
+    for i, rel in enumerate(rel_list):
         rel_dict[rel] = i
 
 

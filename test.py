@@ -80,6 +80,7 @@ def process(model, tri):
     scores = np.zeros(8)
 
     r, s, o = tri
+    print(tri)
     r_ids = np.repeat(r, n_ent)
     s_ids = np.repeat(s, n_ent)
     o_ids = np.repeat(o, n_ent)
