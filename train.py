@@ -138,9 +138,9 @@ def main():
 
     # - Save model
     if args.model != 's':
-        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}'.format(args.kg_choice, args.model,  args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch)
+        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}-b{}'.format(args.kg_choice, args.model,  args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch, args.batchsize)
     elif args.model == 's':
-        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}-p{}'.format(args.kg_choice, args.model, args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch, args.p_dim)
+        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}-p{}-b{}'.format(args.kg_choice, args.model, args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch, args.p_dim, args.batchsize)
 
     chainer.serializers.save_hdf5("trained_model/{}".format(model_name), model)
 
