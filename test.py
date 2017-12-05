@@ -169,7 +169,7 @@ def main():
 
     serializers.load_hdf5("trained_model/" + args.save, model)
     model.to_cpu()
-
+    model._normalize()
     # Dev
     logger.info('---dev---')
     score_dict = get_all_metrics(dev[:100], model)

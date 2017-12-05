@@ -36,7 +36,7 @@ class Base(chainer.Chain):
         self.k = k
 
     def _normalize(self):
-        norm = self.xp.linalg.norm(self.embed.W.data)
+        norm = self.xp.linalg.norm(self.embed.W.data, axis=1)
         norm = self.xp.expand_dims(norm, axis=1)
         self.embed.W.data = self.embed.W.data / norm
 
@@ -85,4 +85,5 @@ class Base(chainer.Chain):
         return loss
 
     def __call__(self, batch):
+        self._normalize()
         return self._get_loss(batch)
