@@ -33,7 +33,7 @@ def parse_hyparams(model_name):
     return hp_dict
 
 
-def get_mrr_and_hits(tri, all_ent_ids, gs, scores, corrupt_s=True):
+def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
     r, s, o = tri
     if corrupt_s is True:
         index = s
@@ -46,6 +46,8 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, scores, corrupt_s=True):
     # Raw
     descending = all_ent_ids[np.argsort(gs)[::-1]]
     rank = np.where(descending == index)[0][0] + 1
+
+    scores = np.zeros(8)
     # - MRR
     scores[6] += 1 / rank
     # - Hits
@@ -76,21 +78,17 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, scores, corrupt_s=True):
 
 
 def process(model, tri):
-    # hits1, hits3, hits10, hits1f, hits3f, hits10f, mrr, mrrf
-    scores = np.zeros(8)
-
     r, s, o = tri
-    print(tri)
     r_ids = np.repeat(r, n_ent)
     s_ids = np.repeat(s, n_ent)
     o_ids = np.repeat(o, n_ent)
     all_ent_ids = np.arange(n_ent).astype(np.int32)
 
     gs = model.get_g(r_ids, all_ent_ids, o_ids).reshape(n_ent,).data
-    scores_s = get_mrr_and_hits(tri, all_ent_ids, gs, scores, corrupt_s=True)
+    scores_s = get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True)
 
     gs = model.get_g(r_ids, s_ids, all_ent_ids).reshape(n_ent,).data
-    scores_o = get_mrr_and_hits(tri, all_ent_ids, gs, scores, corrupt_s=False)
+    scores_o = get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=False)
 
     return np.stack((scores_s, scores_o))
 
@@ -174,7 +172,7 @@ def main():
 
     # Dev
     logger.info('---dev---')
-    score_dict = get_all_metrics(dev, model)
+    score_dict = get_all_metrics(dev[:100], model)
     for key in score_dict.keys():
         logger.info('{}: {}'.format(key, score_dict[key]))
 
