@@ -111,7 +111,7 @@ class NTNc(NTN):
     def _get_neg_g(self, r_ids, s_re_r, s_im_r, o_re_r, o_im_r, cs_re_r, cs_im_r, co_re_r, co_im_r, csco):
         # W
         w_re = F.reshape(self.wr_re[r_ids], (self.s_batch * self.k, 1, self.d))
-        w_im = F.reshape(self.wr_re[r_ids], (self.s_batch * self.k, 1, self.d))
+        w_im = F.reshape(self.wr_im[r_ids], (self.s_batch * self.k, 1, self.d))
         # V
         V = self.Vr[r_ids]
         V_t = F.tile(V, (self.n_nsamp, 1, 1))
