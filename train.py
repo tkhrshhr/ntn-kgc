@@ -72,6 +72,8 @@ def main():
     # Data setup
     train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(args.kg_choice)
 
+    print(n_ent)
+    print(n_rel)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         xp = cuda.cupy
