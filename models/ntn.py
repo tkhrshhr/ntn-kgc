@@ -4,13 +4,15 @@ from models.base import Base
 
 
 class NTN(Base):
-    def __init__(self, n_ent, n_rel, n_nsamp=1, d=100, k=4):
+    def __init__(self, n_ent, n_rel, n_nsamp=1, d=100, k=4, mp=1):
         Base.__init__(self, n_ent, n_rel, n_nsamp, d, k)
         with self.init_scope():
             # Set initializer
             u_initializer = chainer.initializers.Uniform(dtype=self.xp.float32)
             # Wr
             self.Wr = chainer.Parameter(shape=(n_rel, k, d, d), initializer=u_initializer)
+
+        self.mp = mp
 
     def get_g(self, r_ids, s_ids, o_ids):
         s_batch = len(r_ids)
@@ -39,7 +41,10 @@ class NTN(Base):
         Vso = F.reshape(Vso_, (s_batch, self.k))
 
         # sum up terms
-        preact = sWo + Vso + b
+        if self.mp == 1:
+            preact = sWo + Vso + b
+        elif self.mp == 0:
+            preact = sWo + b
 
         activated = F.tanh(preact)
 
@@ -100,7 +105,11 @@ class NTN(Base):
         Vso = F.reshape(Vso_, (self.s_batch * self.n_nsamp, self.k))
 
         # sum up terms
-        preact = sWo + Vso + b_t
+        # sum up terms
+        if self.mp == 1:
+            preact = sWo + Vso + b_t
+        if self.mp == 0:
+            preact = sWo + b_t
         activated = F.tanh(preact)
 
         g_score_ = F.sum(u_t * activated, axis=1)

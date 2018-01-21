@@ -5,7 +5,6 @@ import chainer
 from chainer import cuda
 from chainer import training
 from chainer.training import extensions
-from chainer import links as L
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -28,6 +27,9 @@ def main():
     parser.add_argument('--model', '-m', type=str, default='n',
                         help='Model to train')
 
+    parser.add_argument('--matpro', '-v', type=int, default=1,
+                        help='if matrix product is in the model')
+
     parser.add_argument('--p_dim', '-p', type=int, default=1,
                         help='Dimension p')
 
@@ -49,7 +51,7 @@ def main():
     parser.add_argument('--learn_rate', '-l', type=float, default=0.1,
                         help='Learning rate')
 
-    parser.add_argument('--batchsize', '-b', type=int, default=5000,
+    parser.add_argument('--batchsize', '-b', type=int, default=1000,
                         help='minibatch size')
 
     parser.add_argument('--gpu', '-g', default=-1, type=int,
@@ -93,13 +95,25 @@ def main():
         result_dir = 'result_nn'
         model = NN(**params)
     elif args.model == 't':
-        result_dir = 'result_ntn'
+        if args.matpro == 1:
+            result_dir = 'result_ntn'
+        elif args.matpro == 0:
+            result_dir = 'result_ntn_t'
+        params['mp'] = args.matpro
         model = NTN(**params)
     elif args.model == 'd':
-        result_dir = 'result_ntnd'
+        if args.matpro == 1:
+            result_dir = 'result_ntnd'
+        elif args.matpro == 0:
+            result_dir = 'result_ntnd_t'
+        params['mp'] = args.matpro
         model = NTNd(**params)
     elif args.model == 'c':
-        result_dir = 'result_ntnc'
+        if args.matpro == 1:
+            result_dir = 'result_ntnd'
+        elif args.matpro == 0:
+            result_dir = 'result_ntnd_t'
+        params['mp'] = args.matpro
         model = NTNc(**params)
     elif args.model == 's':
         result_dir = 'result_ntns'
@@ -139,10 +153,16 @@ def main():
     trainer.run()
 
     # - Save model
-    if args.model != 's':
-        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}-b{}'.format(args.kg_choice, args.model,  args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch, args.batchsize)
-    elif args.model == 's':
-        model_name = '{}-{}-d{}-k{}-s{}-w{:.10f}-e{}-p{}-b{}'.format(args.kg_choice, args.model, args.dimension, args.slice_size, args.n_nsamp, args.weightdecay, args.epoch, args.p_dim, args.batchsize)
+    model_name = '{}-{}-x{}-d{}-k{}-s{}-w{:.10f}-e{}-p{}-b{}'.format(args.kg_choice,
+                                                                     args.model,
+                                                                     args.matpro,
+                                                                     args.dimension,
+                                                                     args.slice_size,
+                                                                     args.n_nsamp,
+                                                                     args.weightdecay,
+                                                                     args.epoch,
+                                                                     args.p_dim,
+                                                                     args.batchsize)
 
     chainer.serializers.save_hdf5("trained_model/{}".format(model_name), model)
 

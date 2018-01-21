@@ -158,10 +158,13 @@ def main():
     if hp_dict['model'] == 'n':
         model = NN(**params)
     elif hp_dict['model'] == 't':
+        params['mp'] = hp_dict['v']
         model = NTN(**params)
     elif hp_dict['model'] == 'd':
+        params['mp'] = hp_dict['v']
         model = NTNd(**params)
     elif hp_dict['model'] == 'c':
+        params['mp'] = hp_dict['v']
         model = NTNc(**params)
     elif hp_dict['model'] == 's':
         params['p'] = hp_dict['p']

@@ -5,7 +5,7 @@ from models.ntn import NTN
 
 
 class NTNc(NTN):
-    def __init__(self, n_ent, n_rel, n_nsamp=1, d=100, k=4):
+    def __init__(self, n_ent, n_rel, n_nsamp=1, d=100, k=4, mp=1):
         NTN.__init__(self, n_ent, n_rel, n_nsamp, d, k)
         with self.init_scope():
             # Set initializer
@@ -22,6 +22,8 @@ class NTNc(NTN):
             # Vr
             del self.Vr
             self.Vr = chainer.Parameter(shape=(n_rel, k, 4 * d), initializer=u_initializer)
+
+        self.mp = mp
 
     def _normalize(self):
         concat = self.xp.concatenate((self.embed_re.W.data, self.embed_im.W.data), axis=1)
@@ -67,7 +69,10 @@ class NTNc(NTN):
         Vso = F.reshape(Vso_, (s_batch, self.k))
 
         # sum up terms
-        preact = sWo + Vso + b
+        if self.mp == 1:
+            preact = sWo + Vso + b
+        elif self.mp == 0:
+            preact = sWo + b
 
         activated = F.tanh(preact)
 
@@ -153,7 +158,10 @@ class NTNc(NTN):
         Vso = F.reshape(Vso_, (self.s_batch * self.n_nsamp, self.k))
 
         # sum up terms
-        preact = sWo + Vso + b_t
+        if self.mp == 1:
+            preact = sWo + Vso + b_t
+        elif self.mp == 0:
+            preact = sWo + b_t
         activated = F.tanh(preact)
 
         g_score_ = F.sum(u_t * activated, axis=1)
