@@ -67,7 +67,7 @@ def main():
     today = datetime.date.today()
     month = today.month
     day = today.day
-    resultname = "{}-{}{}_b{}d{}w{}e{}".format(month, day, args.nmodifier, args.batchsize, args.dimension, args.weightdecay, args.epoch)
+    resultname = "{}{}-{}{}_b{}d{}w{}e{}".format(args.kg_choice, month, day, args.nmodifier, args.batchsize, args.dimension, args.weightdecay, args.epoch)
 
     # Data setup
     train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(args.kg_choice)

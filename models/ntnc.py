@@ -10,10 +10,11 @@ class NTNc(NTN):
         with self.init_scope():
             # Set initializer
             u_initializer = chainer.initializers.Uniform(dtype=self.xp.float32)
+
             # Embeddings
             del self.embed
-            self.embed_re = L.EmbedID(n_ent, d, initialW=u_initializer)
-            self.embed_im = L.EmbedID(n_ent, d, initialW=u_initializer)
+            self.embed_re = L.EmbedID(n_ent, d)
+            self.embed_im = L.EmbedID(n_ent, d)
             # Wr
             del self.Wr
             self.wr_re = chainer.Parameter(shape=(n_rel, k, 1, d), initializer=u_initializer)
@@ -123,8 +124,8 @@ class NTNc(NTN):
         u_t = F.tile(u, (self.n_nsamp, 1))
 
         # Stack vectors
-        s_riri = F.stack((s_re_r, s_im_r, o_re_r, o_im_r), axis=0)
-        o_riir = F.stack((s_re_r, s_im_r, o_im_r, o_re_r), axis=0)
+        s_riri = F.stack((s_re_r, s_im_r, s_re_r, s_im_r), axis=0)
+        o_riir = F.stack((o_re_r, o_im_r, o_im_r, o_re_r), axis=0)
         w_rrii = F.stack((w_re, w_re, w_im, w_im), axis=0)
 
         cs_riri = F.stack((cs_re_r, cs_im_r, cs_re_r, cs_im_r), axis=0)
