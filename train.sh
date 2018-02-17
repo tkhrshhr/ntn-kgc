@@ -1,5 +1,13 @@
+model="n"
+gpu=-1
 for kg in w f; do
-    for m in t d c; do
-        python train.py -m $m -v 0 -g 0 > log/0121_no_matpro_$kg\_m$m
+  for dim in 100 150 200; do
+    for weight in 0.01 0.001 0.0001; do
+      for k in 1 4 10; do
+        for l in 0.1 0.05; do
+          python train.py -c $kg -m $model -g $gpu -d $dim -w $weight -k $k -l $l 
+        done
+      done
     done
+  done
 done
