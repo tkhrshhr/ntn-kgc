@@ -1,5 +1,3 @@
-import numpy as np
-
 import chainer
 import chainer.functions as F
 import chainer.links as L
@@ -85,5 +83,4 @@ class Base(chainer.Chain):
         return loss
 
     def __call__(self, batch):
-        self._normalize()
         return self._get_loss(batch)
