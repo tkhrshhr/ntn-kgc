@@ -1,0 +1,1 @@
+train.sh: line 9: 23517 Terminated              python train.py -e 1 -m $model -g $gpu -c $kg -d $dim -k $k -s $s -w $weight -l $l -p $p -f grid > log/0328_e300_m$model\g$gpu\c$kg\d$dim\k$k\s$s\w$weight\l$l\p$p

@@ -148,7 +148,7 @@ def main():
     def save_models(n_epoch):
         @training.make_extension(trigger=(n_epoch, 'epoch'))
         def _save_models(trainer):
-            chainer.serializers.save_hdf5("{}/{}-epoch:{}".format(dir_name, name, updater.epoch), model)
+            chainer.serializers.save_hdf5("{}/{}#c_epoch:{}".format(dir_name, name, updater.epoch), model)
         return _save_models
 
     def normalize():
