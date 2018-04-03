@@ -1,7 +1,7 @@
-model="t"
-p=1
-gpu=2
-for kg in f; do
+model="s"
+p=10
+gpu=0
+for kg in w f; do
   for dim in 100; do
     for k in 1 4; do
       for s in 2 10; do
