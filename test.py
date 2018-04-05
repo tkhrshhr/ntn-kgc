@@ -5,32 +5,14 @@ import logging
 from joblib import Parallel, delayed
 from chainer import serializers
 
-import reader
-
 from models.nn import NN
 from models.ntn import NTN
 from models.ntnd import NTNd
 from models.ntnc import NTNc
 from models.ntns import NTNs
 
-
-def parse_hyparams(model_name):
-    hp_dict = {}
-
-    hps = model_name.split('-')
-    print(hps)
-    hp_dict['dataset'] = hps[0]
-    hp_dict['model'] = hps[1]
-    for hp in hps[2:]:
-        key = hp[0]
-        value = hp[1:]
-        if key == 'w':
-            hp_dict[key] = float(value)
-        else:
-            print(key, value)
-            hp_dict[key] = int(value)
-
-    return hp_dict
+from lib import reader, fnameRW
+import sys
 
 
 def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
@@ -66,6 +48,7 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
     rank = np.where(descending == index)[0][0] + 1
     # - MRR
     scores[7] += 1 / rank
+
     # - Hits
     if rank <= 1:
         scores[3] += 1
@@ -104,6 +87,7 @@ def get_all_metrics(data, model):
     example_length = len(scores)
     scores = np.sum(scores, axis=0)
     scores = scores / example_length
+    print(example_length)
     score_dict['hits1'] = scores[0]
     score_dict['hits3'] = scores[1]
     score_dict['hits10'] = scores[2]
@@ -117,62 +101,63 @@ def get_all_metrics(data, model):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--file', '-fl', type=str, default='gpu:-1#kg_choice:w#model:d#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:10#matpro:1#p_dim:1#dimension:100#slice_size:4#n_nsamp:10#save_period:1#folder:test0404#c_epoch:1',
+                        help='file to be tested')
+    test_args = parser.parse_args()
 
-    parser.add_argument('--save', '-s', type=str, default='',
-                        help='save name to test')
-    args = parser.parse_args()
+    # Read the trained model name and set the test log file and folder name
+    train_args_dict = fnameRW.fname_read(test_args.file)
+    tl_name = fnameRW.tlname_make(test_args.file)
+    tl_folder = train_args_dict['folder']
 
-    # create logger with 'spam_application'
+    # Create logger with 'spam_application'
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-    # create file handler which logs even debug messages
-    fh = logging.FileHandler('test_result/{}.log'.format(args.save), mode='w')
+    # Create file handler which logs even debug messages
+    fh = logging.FileHandler('test_result/{}/{}.log'.format(tl_folder, tl_name), mode='w')
     fh.setLevel(logging.INFO)
-    # create console handler with a higher log level
+    # Create console handler with a higher log level
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
-    # create formatter and add it to the handlers
+    # Create formatter and add it to the handlers
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
-    # add the handlers to the logger
+    # Add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
-
-    # Parse save file name
-    hp_dict = parse_hyparams(args.save)
 
     # Read dataset
     global n_ent
     global rs2o
     global ro2s
-    train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(hp_dict['dataset'])
+    train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(train_args_dict['kg_choice'])
 
     # Prepare model
     params = {}
     params['n_ent'] = n_ent
     params['n_rel'] = n_rel
-    params['n_nsamp'] = hp_dict['s']
-    params['d'] = hp_dict['d']
-    params['k'] = hp_dict['k']
-    if hp_dict['model'] == 'n':
+    params['n_nsamp'] = train_args_dict['n_nsamp']
+    params['d'] = train_args_dict['dimension']
+    params['k'] = train_args_dict['slice_size']
+    if train_args_dict['model'] == 'n':
         model = NN(**params)
-    elif hp_dict['model'] == 't':
-        params['mp'] = hp_dict['x']
+    elif train_args_dict['model'] == 't':
+        params['mp'] = train_args_dict['matpro']
         model = NTN(**params)
-    elif hp_dict['model'] == 'd':
-        params['mp'] = hp_dict['x']
+    elif train_args_dict['model'] == 'd':
+        params['mp'] = train_args_dict['matpro']
         model = NTNd(**params)
-    elif hp_dict['model'] == 'c':
-        params['mp'] = hp_dict['x']
+    elif train_args_dict['model'] == 'c':
+        params['mp'] = train_args_dict['matpro']
         model = NTNc(**params)
-    elif hp_dict['model'] == 's':
-        params['p'] = hp_dict['p']
+    elif train_args_dict['model'] == 's':
+        params['p'] = train_args_dict['p_dim']
         model = NTNs(**params)
 
-    serializers.load_hdf5("trained_model/" + args.save, model)
+    serializers.load_hdf5("trained_model/{}/{}".format(train_args_dict['folder'], test_args.file), model)
     model.to_cpu()
-    model._normalize()
+
     # Dev
     logger.info('---dev---')
     score_dict = get_all_metrics(dev[:100], model)

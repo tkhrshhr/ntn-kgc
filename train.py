@@ -15,7 +15,7 @@ from models.ntnd import NTNd
 from models.ntnc import NTNc
 from models.ntns import NTNs
 
-from lib import reader, interface
+from lib import reader, fnameRW
 
 
 def main():
@@ -88,6 +88,7 @@ def main():
               'n_nsamp': args.n_nsamp,
               'd': args.dimension,
               'k': args.slice_size}
+
     if args.model == 'n':
         result_dir = 'result_nn'
         model = NN(**params)
@@ -121,7 +122,7 @@ def main():
         model.to_gpu()
 
     # File name setting
-    name = interface.fname_make(args)
+    name = fnameRW.fname_make(args)
 
     # Prepare train iterators
     train = xp.array(train, xp.int32)
