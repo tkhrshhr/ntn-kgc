@@ -101,7 +101,7 @@ def get_all_metrics(data, model):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--file', '-fl', type=str, default='gpu:-1#kg_choice:w#model:d#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:10#matpro:1#p_dim:1#dimension:100#slice_size:4#n_nsamp:10#save_period:1#folder:test0404#c_epoch:1',
+    parser.add_argument('--file', '-fl', type=str, default='',
                         help='file to be tested')
     test_args = parser.parse_args()
 
