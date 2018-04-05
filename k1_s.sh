@@ -1,5 +1,5 @@
 model=s
-gpu=-1
+gpu=2
 k=1
 d=100
 w=0.0001

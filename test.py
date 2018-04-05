@@ -158,6 +158,7 @@ def main():
     serializers.load_hdf5("trained_model/{}/{}".format(train_args_dict['folder'], test_args.file), model)
     model.to_cpu()
 
+    logger.info(tl_name+'\n')
     # Dev
     logger.info('---dev---')
     score_dict = get_all_metrics(dev[:100], model)
