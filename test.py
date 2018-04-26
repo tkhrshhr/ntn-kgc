@@ -12,11 +12,9 @@ from models.ntnc import NTNc
 from models.ntns import NTNs
 
 from lib import reader, fnameRW
-import time
 
 
 def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
-    start = time.time()
     r, s, o = tri
     if corrupt_s is True:
         index = s
@@ -60,7 +58,6 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
     if rank <= 10:
         scores[5] += 1
 
-    print(time.time() - start)
     return scores
 
 
