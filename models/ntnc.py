@@ -36,16 +36,17 @@ class NTNc(NTN):
         s_batch = len(r_ids)
         # Get embeddings
         s_re = self.embed_re(s_ids)
-        s_im = self.embed_im(s_ids)
         s_re_r = F.reshape(F.tile(s_re, (1, self.k)), (s_batch * self.k, 1, self.d))
-        s_im_r = F.reshape(F.tile(s_im, (1, self.k)), (s_batch * self.k, 1, self.d))
-
         o_re = self.embed_re(o_ids)
-        o_im = self.embed_im(o_ids)
         o_re_r = F.reshape(F.tile(o_re, (1, self.k)), (s_batch * self.k, 1, self.d))
+
+        s_im = self.embed_im(s_ids)
+        s_im_r = F.reshape(F.tile(s_im, (1, self.k)), (s_batch * self.k, 1, self.d))
+        o_im = self.embed_im(o_ids)
         o_im_r = F.reshape(F.tile(o_im, (1, self.k)), (s_batch * self.k, 1, self.d))
 
         so = F.concat((s_re, s_im, o_re, o_im), axis=1)
+
         # W
         w_re = F.reshape(self.wr_re[r_ids], (s_batch * self.k, 1, self.d))
         w_im = F.reshape(self.wr_im[r_ids], (s_batch * self.k, 1, self.d))
@@ -57,10 +58,10 @@ class NTNc(NTN):
         u = self.ur[r_ids]
 
         # calculate each term
-        # sWo
+        # - sWo
+        w_rrii = F.stack((w_re,   w_re,   w_im,   w_im), axis=0)
         s_riri = F.stack((s_re_r, s_im_r, s_re_r, s_im_r), axis=0)
         o_riir = F.stack((o_re_r, o_im_r, o_im_r, o_re_r), axis=0)
-        w_rrii = F.stack((w_re, w_re, w_im, w_im), axis=0)
         sWo__ = F.sum(w_rrii * s_riri * o_riir, axis=(2, 3))
         sWo_ = sWo__[0] + sWo__[1] + sWo__[2] - sWo__[3]
         sWo = F.reshape(sWo_, (s_batch, self.k))
@@ -83,31 +84,35 @@ class NTNc(NTN):
 
     def _mold_for_neg(self, s_ids, o_ids, cs_ids, co_ids):
         # Get embeddings
+        # - Real part
         s_re = self.embed_re(s_ids)
-        s_im = self.embed_im(s_ids)
         s_re_r = F.reshape(F.tile(s_re, (1, self.k)), (self.s_batch * self.k, 1, self.d))
-        s_im_r = F.reshape(F.tile(s_im, (1, self.k)), (self.s_batch * self.k, 1, self.d))
-
         o_re = self.embed_re(o_ids)
-        o_im = self.embed_im(o_ids)
         o_re_r = F.reshape(F.tile(o_re, (1, self.k)), (self.s_batch * self.k, 1, self.d))
-        o_im_r = F.reshape(F.tile(o_im, (1, self.k)), (self.s_batch * self.k, 1, self.d))
 
         cs_re = self.embed_re(cs_ids)
-        cs_im = self.embed_im(cs_ids)
         cs_re_r = F.reshape(F.tile(cs_re, (1, self.k)), (self.n_cs * self.s_batch * self.k, 1, self.d))
-        cs_im_r = F.reshape(F.tile(cs_im, (1, self.k)), (self.n_cs * self.s_batch * self.k, 1, self.d))
-
         co_re = self.embed_re(co_ids)
-        co_im = self.embed_im(co_ids)
         co_re_r = F.reshape(F.tile(co_re, (1, self.k)), (self.n_co * self.s_batch * self.k, 1, self.d))
+
+        # - Imaginary part
+        s_im = self.embed_im(s_ids)
+        s_im_r = F.reshape(F.tile(s_im, (1, self.k)), (self.s_batch * self.k, 1, self.d))
+        o_im = self.embed_im(o_ids)
+        o_im_r = F.reshape(F.tile(o_im, (1, self.k)), (self.s_batch * self.k, 1, self.d))
+
+        cs_im = self.embed_im(cs_ids)
+        cs_im_r = F.reshape(F.tile(cs_im, (1, self.k)), (self.n_cs * self.s_batch * self.k, 1, self.d))
+        co_im = self.embed_im(co_ids)
         co_im_r = F.reshape(F.tile(co_im, (1, self.k)), (self.n_co * self.s_batch * self.k, 1, self.d))
 
-        # - concat ce1e2  and e1ce2
+        # concat ce1e2  and e1ce2
         s_re_t_half = F.tile(s_re, (self.n_co, 1))
-        s_im_t_half = F.tile(s_im, (self.n_co, 1))
         o_re_t_half = F.tile(o_re, (self.n_cs, 1))
+
+        s_im_t_half = F.tile(s_im, (self.n_co, 1))
         o_im_t_half = F.tile(o_im, (self.n_cs, 1))
+
         cso = F.concat((cs_re, cs_im, o_re_t_half, o_im_t_half), axis=1)
         sco = F.concat((s_re_t_half, s_im_t_half, co_re, co_im), axis=1)
         csco = F.concat((cso, sco), axis=0)
@@ -129,14 +134,15 @@ class NTNc(NTN):
         u_t = F.tile(u, (self.n_nsamp, 1))
 
         # Stack vectors
+        w_rrii = F.stack((w_re,   w_re,   w_im,   w_im), axis=0)
         s_riri = F.stack((s_re_r, s_im_r, s_re_r, s_im_r), axis=0)
         o_riir = F.stack((o_re_r, o_im_r, o_im_r, o_re_r), axis=0)
-        w_rrii = F.stack((w_re, w_re, w_im, w_im), axis=0)
 
         cs_riri = F.stack((cs_re_r, cs_im_r, cs_re_r, cs_im_r), axis=0)
         co_riir = F.stack((co_re_r, co_im_r, co_im_r, co_re_r), axis=0)
 
         # calculate each term
+        # - sWo
         sW = s_riri * w_rrii
         Wo = w_rrii * o_riir
 
