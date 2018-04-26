@@ -3,6 +3,8 @@ import numpy as np
 import logging
 
 from joblib import Parallel, delayed
+# import multiprocessing as multi
+# from multiprocessing import Pool, Process
 from chainer import serializers
 
 from models.nn import NN
@@ -12,10 +14,11 @@ from models.ntnc import NTNc
 from models.ntns import NTNs
 
 from lib import reader, fnameRW
-import sys
+import time
 
 
 def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
+#    start = time.time()
     r, s, o = tri
     if corrupt_s is True:
         index = s
@@ -25,11 +28,13 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
         index = o
         rs2o[(r, s)].remove(o)
         f_inds = rs2o[(r, s)]
-    # Raw
-    descending = all_ent_ids[np.argsort(gs)[::-1]]
-    rank = np.where(descending == index)[0][0] + 1
 
+    target_score = gs[index]
     scores = np.zeros(8)
+    # Raw
+    rank = np.sum(gs >= target_score)
+#    descending = all_ent_ids[np.argsort(gs)[::-1]]
+#    rank = np.where(descending == index)[0][0] + 1
     # - MRR
     scores[6] += 1 / rank
     # - Hits
@@ -42,10 +47,10 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
 
     # Filtered
     f_gs = np.delete(gs, f_inds)
-    f_all_ent_ids = np.delete(all_ent_ids, f_inds)
-
-    descending = f_all_ent_ids[np.argsort(f_gs)[::-1]]
-    rank = np.where(descending == index)[0][0] + 1
+#    f_all_ent_ids = np.delete(all_ent_ids, f_inds)
+#    descending = f_all_ent_ids[np.argsort(f_gs)[::-1]]
+#    rank = np.where(descending == index)[0][0] + 1
+    rank = np.sum(f_gs >= target_score)
     # - MRR
     scores[7] += 1 / rank
 
@@ -57,6 +62,7 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
     if rank <= 10:
         scores[5] += 1
 
+#    print(time.time() - start)
     return scores
 
 
@@ -82,7 +88,9 @@ def get_all_metrics(data, model):
 
     # Prepare data
     data = np.array(data, np.int32)
-    scores = Parallel(n_jobs=-1)([delayed(process)(model, tri) for tri in data])
+#    p = Pool(multi.cpu_count())
+#    scores = p.map()
+    scores = Parallel(n_jobs=100)([delayed(process)(model, tri) for tri in data])
     scores = np.concatenate(scores, axis=0)
     example_length = len(scores)
     scores = np.sum(scores, axis=0)
@@ -157,13 +165,15 @@ def main():
 
     serializers.load_hdf5("trained_model/{}/{}".format(train_args_dict['folder'], test_args.file), model)
     model.to_cpu()
-
     logger.info(tl_name+'\n')
+
+    """
     # Dev
     logger.info('---dev---')
     score_dict = get_all_metrics(dev[:100], model)
     for key in score_dict.keys():
         logger.info('{}: {}'.format(key, score_dict[key]))
+    """
 
     # Test
     logger.info('---test---')
