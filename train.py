@@ -1,6 +1,7 @@
 import numpy
 import argparse
 import os
+import time
 import chainer
 from chainer import cuda
 from chainer import training
@@ -77,7 +78,7 @@ def main():
         xp = numpy
 
     # Set random seed
-    xp.random.seed(100)
+#    xp.random.seed(100)
 
     # Data setup
     train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(args.kg_choice)
@@ -108,9 +109,9 @@ def main():
         model = NTNd(**params)
     elif args.model == 'c':
         if args.matpro == 1:
-            result_dir = 'result_ntnd'
+            result_dir = 'result_ntnc'
         else:
-            result_dir = 'result_ntnd_t'
+            result_dir = 'result_ntnc_t'
         params['mp'] = args.matpro
         model = NTNc(**params)
     elif args.model == 's':
@@ -133,6 +134,7 @@ def main():
 
     # Optimizer setup
     optimizer = chainer.optimizers.AdaGrad(lr=args.learn_rate)
+#    optimizer = chainer.optimizers.SGD(lr=args.learn_rate)
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(args.weightdecay))
 
@@ -179,8 +181,10 @@ def main():
     trainer.extend(extensions.ProgressBar())
 
     # - Run trainer
+    start = time.time()
     trainer.run()
-
+    elapsed_time = time.time() -start
+    print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
 
 if __name__ == '__main__':
     main()

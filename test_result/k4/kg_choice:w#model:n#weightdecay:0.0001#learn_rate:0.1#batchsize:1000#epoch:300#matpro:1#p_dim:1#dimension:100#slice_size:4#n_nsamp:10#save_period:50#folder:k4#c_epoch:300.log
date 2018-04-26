@@ -1,3 +1,10 @@
-2018-04-05 22:33:02,866 - __main__ - INFO - kg_choice:w#model:n#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:300#matpro:1#p_dim:1#dimension:100#slice_size:4#n_nsamp:10#save_period:50#folder:k4#c_epoch:300
-
-2018-04-05 22:33:02,866 - __main__ - INFO - ---test---
+2018-04-06 17:36:13,252 - __main__ - INFO - kg_choice:w#model:n#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:300#matpro:1#p_dim:1#dimension:100#slice_size:4#n_nsamp:10#save_period:50#folder:k4#c_epoch:300
+2018-04-06 17:36:13,252 - __main__ - INFO - ---test---
+2018-04-06 17:37:50,560 - __main__ - INFO - hits1: 0.0456
+2018-04-06 17:37:50,561 - __main__ - INFO - hits3: 0.0793
+2018-04-06 17:37:50,561 - __main__ - INFO - hits10: 0.1315
+2018-04-06 17:37:50,561 - __main__ - INFO - hits1f: 0.0484
+2018-04-06 17:37:50,561 - __main__ - INFO - hits3f: 0.0831
+2018-04-06 17:37:50,561 - __main__ - INFO - hits10f: 0.1394
+2018-04-06 17:37:50,561 - __main__ - INFO - mrr: 0.07653371545177594
+2018-04-06 17:37:50,561 - __main__ - INFO - mrrf: 0.08074433820157548

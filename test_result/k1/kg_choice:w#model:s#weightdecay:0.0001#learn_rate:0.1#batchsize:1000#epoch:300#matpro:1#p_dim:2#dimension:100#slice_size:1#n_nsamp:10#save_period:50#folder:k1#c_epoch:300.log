@@ -1,0 +1,10 @@
+2018-04-06 00:43:34,893 - __main__ - INFO - kg_choice:w#model:s#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:300#matpro:1#p_dim:2#dimension:100#slice_size:1#n_nsamp:10#save_period:50#folder:k1#c_epoch:300
+2018-04-06 00:43:34,893 - __main__ - INFO - ---test---
+2018-04-06 00:45:05,753 - __main__ - INFO - hits1: 0.0201
+2018-04-06 00:45:05,754 - __main__ - INFO - hits3: 0.0401
+2018-04-06 00:45:05,754 - __main__ - INFO - hits10: 0.0868
+2018-04-06 00:45:05,754 - __main__ - INFO - hits1f: 0.0202
+2018-04-06 00:45:05,754 - __main__ - INFO - hits3f: 0.0406
+2018-04-06 00:45:05,754 - __main__ - INFO - hits10f: 0.088
+2018-04-06 00:45:05,754 - __main__ - INFO - mrr: 0.042431705848300354
+2018-04-06 00:45:05,755 - __main__ - INFO - mrrf: 0.04302745440918074

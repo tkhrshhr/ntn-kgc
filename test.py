@@ -3,8 +3,8 @@ import numpy as np
 import logging
 
 from joblib import Parallel, delayed
-# import multiprocessing as multi
-# from multiprocessing import Pool, Process
+import multiprocessing as multi
+from multiprocessing import Pool
 from chainer import serializers
 
 from models.nn import NN
@@ -15,6 +15,7 @@ from models.ntns import NTNs
 
 from lib import reader, fnameRW
 import time
+import sys
 
 
 def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
@@ -66,7 +67,7 @@ def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
     return scores
 
 
-def process(model, tri):
+def process(tri):
     r, s, o = tri
     r_ids = np.repeat(r, n_ent)
     s_ids = np.repeat(s, n_ent)
@@ -82,20 +83,20 @@ def process(model, tri):
     return np.stack((scores_s, scores_o))
 
 
-def get_all_metrics(data, model):
+def get_all_metrics(data):
     # Prepare score dictionary
     score_dict = {}
 
     # Prepare data
     data = np.array(data, np.int32)
-#    p = Pool(multi.cpu_count())
-#    scores = p.map()
-    scores = Parallel(n_jobs=100)([delayed(process)(model, tri) for tri in data])
+    p = Pool(multi.cpu_count())
+    scores = p.map(process, data)
+    p.close()
+#    scores = Parallel(n_jobs=100)([delayed(process)(model, tri) for tri in data])
     scores = np.concatenate(scores, axis=0)
     example_length = len(scores)
     scores = np.sum(scores, axis=0)
     scores = scores / example_length
-    print(example_length)
     score_dict['hits1'] = scores[0]
     score_dict['hits3'] = scores[1]
     score_dict['hits10'] = scores[2]
@@ -115,6 +116,17 @@ def main():
 
     # Read the trained model name and set the test log file and folder name
     train_args_dict = fnameRW.fname_read(test_args.file)
+    if not train_args_dict['model'] == 'c':
+        sys.exit()
+    kg = train_args_dict['kg_choice']
+    c_epoch = train_args_dict['c_epoch']
+    a = not(kg == 'w' and c_epoch == 300)
+    b = not(kg == 'f' and c_epoch == 100)
+    print(kg, c_epoch)
+    print(a, b)
+    if a and b:
+        print('exit')
+        sys.exit()        
     tl_name = fnameRW.tlname_make(test_args.file)
     tl_folder = train_args_dict['folder']
 
@@ -143,6 +155,7 @@ def main():
 
     # Prepare model
     params = {}
+    global model
     params['n_ent'] = n_ent
     params['n_rel'] = n_rel
     params['n_nsamp'] = train_args_dict['n_nsamp']
@@ -165,7 +178,7 @@ def main():
 
     serializers.load_hdf5("trained_model/{}/{}".format(train_args_dict['folder'], test_args.file), model)
     model.to_cpu()
-    logger.info(tl_name+'\n')
+    logger.info(tl_name)
 
     """
     # Dev
@@ -177,7 +190,7 @@ def main():
 
     # Test
     logger.info('---test---')
-    score_dict = get_all_metrics(test, model)
+    score_dict = get_all_metrics(test)
     for key in score_dict.keys():
         logger.info('{}: {}'.format(key, score_dict[key]))
 

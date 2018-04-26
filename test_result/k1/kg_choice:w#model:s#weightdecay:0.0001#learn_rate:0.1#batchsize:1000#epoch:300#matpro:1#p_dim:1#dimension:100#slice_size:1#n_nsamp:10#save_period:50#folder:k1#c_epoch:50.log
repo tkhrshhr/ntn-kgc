@@ -1,20 +1,11 @@
-2018-04-05 13:33:39,985 - __main__ - INFO - kg_choice:w#model:s#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:300#matpro:1#p_dim:1#dimension:100#slice_size:1#n_nsamp:10#save_period:50#folder:k1#c_epoch:50
+2018-04-05 23:46:46,901 - __main__ - INFO - kg_choice:w#model:s#weightdecay:0.0001#learn_rate:0.1#batchsize:1000#epoch:300#matpro:1#p_dim:1#dimension:100#slice_size:1#n_nsamp:10#save_period:50#folder:k1#c_epoch:50
 
-2018-04-05 13:33:39,985 - __main__ - INFO - ---dev---
-2018-04-05 13:33:46,190 - __main__ - INFO - hits1: 0.02
-2018-04-05 13:33:46,191 - __main__ - INFO - hits3: 0.03
-2018-04-05 13:33:46,191 - __main__ - INFO - hits10: 0.07
-2018-04-05 13:33:46,191 - __main__ - INFO - hits1f: 0.02
-2018-04-05 13:33:46,191 - __main__ - INFO - hits3f: 0.03
-2018-04-05 13:33:46,191 - __main__ - INFO - hits10f: 0.07
-2018-04-05 13:33:46,191 - __main__ - INFO - mrr: 0.032907593882020005
-2018-04-05 13:33:46,191 - __main__ - INFO - mrrf: 0.03297484420534641
-2018-04-05 13:33:46,191 - __main__ - INFO - ---test---
-2018-04-05 13:38:15,813 - __main__ - INFO - hits1: 0.0081
-2018-04-05 13:38:15,814 - __main__ - INFO - hits3: 0.0186
-2018-04-05 13:38:15,814 - __main__ - INFO - hits10: 0.0456
-2018-04-05 13:38:15,814 - __main__ - INFO - hits1f: 0.0081
-2018-04-05 13:38:15,814 - __main__ - INFO - hits3f: 0.0186
-2018-04-05 13:38:15,814 - __main__ - INFO - hits10f: 0.0458
-2018-04-05 13:38:15,814 - __main__ - INFO - mrr: 0.021131242754623122
-2018-04-05 13:38:15,814 - __main__ - INFO - mrrf: 0.021173073031097243
+2018-04-05 23:46:46,901 - __main__ - INFO - ---test---
+2018-04-05 23:48:04,013 - __main__ - INFO - hits1: 0.0081
+2018-04-05 23:48:04,014 - __main__ - INFO - hits3: 0.0186
+2018-04-05 23:48:04,014 - __main__ - INFO - hits10: 0.0456
+2018-04-05 23:48:04,014 - __main__ - INFO - hits1f: 0.0081
+2018-04-05 23:48:04,014 - __main__ - INFO - hits3f: 0.0186
+2018-04-05 23:48:04,014 - __main__ - INFO - hits10f: 0.0458
+2018-04-05 23:48:04,015 - __main__ - INFO - mrr: 0.021116125582775973
+2018-04-05 23:48:04,015 - __main__ - INFO - mrrf: 0.021167045987569934

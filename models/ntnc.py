@@ -13,8 +13,8 @@ class NTNc(NTN):
 
             # Embeddings
             del self.embed
-            self.embed_re = L.EmbedID(n_ent, d)
-            self.embed_im = L.EmbedID(n_ent, d)
+            self.embed_re = L.EmbedID(n_ent, d, initialW=u_initializer)
+            self.embed_im = L.EmbedID(n_ent, d, initialW=u_initializer)
             # Wr
             del self.Wr
             self.wr_re = chainer.Parameter(shape=(n_rel, k, 1, d), initializer=u_initializer)
