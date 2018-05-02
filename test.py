@@ -1,6 +1,7 @@
 import argparse
 import numpy as np
 import logging
+import sys
 
 from joblib import Parallel, delayed
 from chainer import serializers
@@ -12,6 +13,9 @@ from models.ntnc import NTNc
 from models.ntns import NTNs
 
 from lib import reader, fnameRW
+
+
+"""Functions for ranking"""
 
 
 def get_mrr_and_hits(tri, all_ent_ids, gs, corrupt_s=True):
@@ -100,9 +104,49 @@ def get_all_metrics(data, model):
     return score_dict
 
 
+"""Functions for classification"""
+
+
+def get_scores(data, model):
+    # Prepare data
+    data_length = len(data)
+    r_ids = data[:, 0]
+    s_ids = data[:, 1]
+    o_ids = data[:, 2]
+
+    # Return scores
+    return model.get_g(r_ids, s_ids, o_ids).reshape(data_length,).data
+
+
+def get_accuracy(labels, scores, threshold):
+    return np.sum(labels * (scores > threshold)) / len(labels)
+
+
+def get_threshold(data, scores):
+    # Prepare label
+    labels = data[:, 3]
+    n_intervals = len(data) - 1
+
+    # Get the threshold
+    max = np.max(scores)
+    min = np.min(scores)
+    increment = (max - min) / n_intervals
+    threshold = min
+    accuracy = 0
+    new_accuracy = 0
+    while accuracy <= new_accuracy:
+        new_accuracy = get_accuracy(labels, scores, threshold)
+        if accuracy <= new_accuracy:
+            accuracy = new_accuracy
+        threshold += increment
+    return accuracy, threshold
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--file', '-fl', type=str, default='',
+                        help='file to be tested')
+    parser.add_argument('--classORrank', '-cr', type=str, default='rank',
                         help='file to be tested')
     test_args = parser.parse_args()
 
@@ -115,7 +159,7 @@ def main():
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     # Create file handler which logs even debug messages
-    fh = logging.FileHandler('test_result/{}/{}.log'.format(tl_folder, tl_name), mode='w')
+    fh = logging.FileHandler('test_result/{}/{}.log'.format(tl_folder, 'class' + tl_name), mode='w')
     fh.setLevel(logging.INFO)
     # Create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -159,19 +203,35 @@ def main():
     serializers.load_hdf5("trained_model/{}/{}".format(train_args_dict['folder'], test_args.file), model)
     model.to_cpu()
 
-    """
-    # Dev
-    logger.info('---dev---')
-    score_dict = get_all_metrics(dev[:100], model)
-    for key in score_dict.keys():
-        logger.info('{}: {}'.format(key, score_dict[key]))
-    """
+    if test_args.classORrank == 'rank':
+        """
+        # Dev
+        logger.info('---dev---')
+        score_dict = get_all_metrics(dev[:100], model)
+        for key in score_dict.keys():
+            logger.info('{}: {}'.format(key, score_dict[key]))
+        """
 
-    # Test
-    logger.info('---test---')
-    score_dict = get_all_metrics(test, model)
-    for key in score_dict.keys():
-        logger.info('{}: {}'.format(key, score_dict[key]))
+        # Test
+        logger.info('---test---')
+        score_dict = get_all_metrics(test, model)
+        for key in score_dict.keys():
+            logger.info('{}: {}'.format(key, score_dict[key]))
+
+    elif test_args.classORrank == 'class':
+        # Dev
+        dev = np.array(dev, np.int32)
+        logger.info('---dev---')
+        dev_scores = get_scores(dev, model)
+        dev_accuracy, threshold = get_threshold(dev, dev_scores)
+        logger.info('dev_accuracy: {}'.format(dev_accuracy))
+
+        # Test
+        test = np.array(test, np.int32)
+        logger.info('---test---')
+        test_scores = get_scores(test, model)
+        test_accuracy = get_accuracy(test[:, 3], test_scores, threshold)
+        logger.info('test_accuracy: {}'.format(test_accuracy))
 
 
 if __name__ == '__main__':
