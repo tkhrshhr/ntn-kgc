@@ -1,0 +1,5 @@
+2018-05-02 22:24:51,876 - __main__ - INFO - model:t#weightdecay:0.001#learn_rate:0.1#batchsize:1000#epoch:500#matpro:1#p_dim:1#dimension:100#slice_size:4#n_nsamp:10#save_period:50#folder:w11f13#c_epoch:500
+2018-05-02 22:24:51,882 - __main__ - INFO - ---dev---
+2018-05-02 22:24:52,710 - __main__ - INFO - dev_accuracy: 0.7167400135409614
+2018-05-02 22:24:52,733 - __main__ - INFO - ---test---
+2018-05-02 22:24:55,660 - __main__ - INFO - test_accuracy: 0.7243921965196141
