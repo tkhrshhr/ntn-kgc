@@ -7,7 +7,7 @@ from chainer import Variable as chVar
 
 
 class Base(chainer.Chain):
-    def __init__(self, n_ent, n_rel, n_nsamp=1, d=100, k=4):
+    def __init__(self, n_ent, n_rel, n_nsamp=1, d=100, k=4, nsamp_dicts=None):
         super().__init__()
         with self.init_scope():
             # Set initializer
@@ -32,6 +32,9 @@ class Base(chainer.Chain):
         self.n_nsamp = n_nsamp
         self.d = d
         self.k = k
+
+        # Relation to entities dictionary for Socher way negative sampling
+        self.nsamp_dicts = nsamp_dicts
 
     def _normalize(self):
         norm = self.xp.linalg.norm(self.embed.W.data, axis=1)
@@ -58,8 +61,17 @@ class Base(chainer.Chain):
         r_ids = batch[:, 0]
         s_ids = batch[:, 1]
         o_ids = batch[:, 2]
-        cs_ids = self.xp.random.randint(0, self.n_ent, self.s_batch * self.n_cs).astype(self.xp.int32)
-        co_ids = self.xp.random.randint(0, self.n_ent, self.s_batch * self.n_co).astype(self.xp.int32)
+
+        # Get negative entities IDs
+        if self.nsamp_dicts is None:
+            cs_ids = self.xp.random.randint(0, self.n_ent, self.s_batch * self.n_cs).astype(self.xp.int32)
+            co_ids = self.xp.random.randint(0, self.n_ent, self.s_batch * self.n_co).astype(self.xp.int32)
+
+        else:
+            cs_ids_ = self.xp.array([self.xp.random.choice(self.xp.array(self.nsamp_dicts[0][id]), self.n_cs) for id in r_ids]).astype(self.xp.int32)
+            cs_ids = cs_ids_.transpose().reshape(self.s_batch * self.n_cs,)
+            co_ids_ = self.xp.array([self.xp.random.choice(self.xp.array(self.nsamp_dicts[1][id]), self.n_co) for id in r_ids]).astype(self.xp.int32)
+            co_ids = co_ids_.transpose().reshape(self.s_batch * self.n_co,)
 
         # Get positive g scores and tile them
         pos_g = self.get_g(r_ids, s_ids, o_ids)

@@ -61,6 +61,9 @@ def main():
     parser.add_argument('--n_nsamp', '-s', type=int, default=10,
                         help='Number of negative samples')
 
+    parser.add_argument('--m_nsamp', '-ms', type=str, default=None,
+                        help='Method of negative samples')
+
     # Others
     parser.add_argument('--save_period', '-sp', default='50', type=int,
                         help='a number of epochs to save models')
@@ -81,7 +84,7 @@ def main():
 #    xp.random.seed(100)
 
     # Data setup
-    train, dev, test, n_ent, n_rel, rs2o, ro2s = reader.read(args.kg_choice)
+    train, dev, test, n_ent, n_rel, rs2o, ro2s, r2s, r2o = reader.read(args.kg_choice)
 
     # Model setup
     params = {'n_ent': n_ent,
@@ -89,6 +92,8 @@ def main():
               'n_nsamp': args.n_nsamp,
               'd': args.dimension,
               'k': args.slice_size}
+    if args.m_nsamp == 'Socher':
+        params['nsamp_dicts'] = (r2s, r2o)
 
     if args.model == 'n':
         result_dir = 'result_nn'
@@ -134,7 +139,6 @@ def main():
 
     # Optimizer setup
     optimizer = chainer.optimizers.AdaGrad(lr=args.learn_rate)
-#    optimizer = chainer.optimizers.SGD(lr=args.learn_rate)
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(args.weightdecay))
 
@@ -181,10 +185,8 @@ def main():
     trainer.extend(extensions.ProgressBar())
 
     # - Run trainer
-    start = time.time()
     trainer.run()
-    elapsed_time = time.time() -start
-    print("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
 
 if __name__ == '__main__':
     main()

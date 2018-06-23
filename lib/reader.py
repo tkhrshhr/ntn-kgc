@@ -28,33 +28,27 @@ rel_dict = {}
 rs2o = defaultdict(list)
 ro2s = defaultdict(list)
 
+r2s = []
+r2o = []
+
 train = []
 dev = []
 test = []
 
 
 def get_dict(*files):
-    ent_list = []
-    rel_list = []
-
     ent_set = set()
     rel_set = set()
     for f in files:
         for line in f.readlines():
             s, r, o = line.split()[:3]
-            if s not in ent_set:
-                ent_list.append(s)
-                ent_set.add(s)
-            if o not in ent_set:
-                ent_list.append(o)
-                ent_set.add(o)
-            if r not in rel_set:
-                rel_list.append(r)
-                rel_set.add(r)
+            ent_set.add(s)
+            ent_set.add(o)
+            rel_set.add(r)
 
-    for i, ent in enumerate(ent_list):
+    for i, ent in enumerate(list(ent_set)):
         ent_dict[ent] = i
-    for i, rel in enumerate(rel_list):
+    for i, rel in enumerate(list(rel_set)):
         rel_dict[rel] = i
 
 
@@ -75,14 +69,27 @@ def get_rso_as_ID_w11f13_dev_test(line):
     return [rel_dict[r], ent_dict[s], ent_dict[o], int(label)]
 
 
-def read(kg='w'):
+def read(kg):
     train_f, dev_f, test_f = [open(path, 'r') for path in PATH_DICT[kg]]
     get_dict(train_f, dev_f, test_f)
+
     train_f.seek(0)
     dev_f.seek(0)
     test_f.seek(0)
     for line in train_f.readlines():
         train.append(get_rso_as_ID(line))
+
+    # Create relation to subject or object dictionary
+    r2s_ = defaultdict(set)
+    r2o_ = defaultdict(set)
+    for triplet in train:
+        r, s, o = triplet
+        r2s_[r].add(s)
+        r2o_[r].add(o)
+
+    for r in range(len(rel_dict)):
+        r2s.append(list(r2s_[r]))
+        r2o.append(list(r2o_[r]))
 
     if kg == ('w' or 'f'):
         func = get_rso_as_ID
@@ -93,9 +100,12 @@ def read(kg='w'):
     for line in test_f.readlines():
         test.append(func(line))
 
-    return train, dev, test, len(ent_dict), len(rel_dict), rs2o, ro2s
+    return train, dev, test, len(ent_dict), len(rel_dict), rs2o, ro2s, r2s, r2o
 
 
 if __name__ == '__main__':
-    a, b, c, d, e, f, g = read('f13')
+    a, b, c, d, e, f, g, h, i = read('f13')
     print(b[:10])
+    print(i[0])
+    print(len(r2s))
+    print(len(r2o))
